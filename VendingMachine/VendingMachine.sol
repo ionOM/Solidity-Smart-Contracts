@@ -54,7 +54,8 @@ contract VendingMachine is TheOwner {
     // Function to purchase a product.
     function purchaseProduct() public payable {
         require(paused == false, "The contract is paused, try later please.");
-        require(msg.value >= price, "Insufficient payment.");
+        require(msg.sender.balance >= msg.value, "Insufficient Balance");
+        require(msg.value == price, "You must enter the exact amount");;
         require(inventory > 0, "Out of stock.");
         inventory--;
         emit ProductPurchased(1, msg.value);
