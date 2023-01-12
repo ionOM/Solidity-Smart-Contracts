@@ -17,7 +17,7 @@ contract Lottery {
     // The current lottery total amount.
     uint public currentAmount;
 
-    event AllTimeWinners(address winner);
+    event AllTimeWinners(address indexed winner);
 
 
     constructor() {
