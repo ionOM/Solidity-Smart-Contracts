@@ -66,15 +66,16 @@ contract Voting {
     // Mapping to store all the Voter structs, with the address of the voter as the key.
     mapping(address => Voter) public voters;
 
+    uint256 public startTime;
+    uint256 public endTime;
 
 
     // Sets the votingOrganizer variable to the address of the contract creator (msg.sender).
     constructor() {
         votingOrganizer = msg.sender;
+        startTime = uint256(block.timestamp + 1 hours); // 1 hour after contract deployment
+        endTime = uint256(block.timestamp + 2 days); // 2 days after contract deployment.
     }
-    
-    uint256 public startTime;
-    uint256 public endTime;
 
     // Function to change the votingOrganizer.
     function setNewOrganizer(address _newOrganizer) public {
@@ -178,6 +179,8 @@ contract Voting {
     
     // Function that allows a voter to cast a vote for a candidate.
     function vote(address _candidateAddress, uint256 _candidateVoteId) external {
+        // Check if the current time is within the voting period
+        require(block.timestamp >= startTime && block.timestamp <= endTime, "Voting period has not started or has ended");
         
         /* This creates a storage reference to the voter struct in the voters mapping that 
        corresponds to the address of the person calling the function (msg.sender). */
@@ -248,10 +251,26 @@ contract Voting {
         return winner;
     }
 
+    // This function set the start time and end time for voting (_endTime in seconds).
+    function restartTime(uint256 _endTime) public {
+        require(msg.sender == votingOrganizer, "Only the organizer can restart the time");
+        require(block.timestamp > endTime, "The voting period is not over yet");
+        startTime = block.timestamp;
+        endTime = block.timestamp + _endTime;
+    }
+
+    // Function to check how much time is left to vote.
+    function timeRemaining() public view returns (uint256) {
+        uint256 remainingTime = endTime - block.timestamp;
+        require(remainingTime > 0, "Voting period is over.");
+        return remainingTime;
+    }
+
 
     // Function to restart the contract.
-    function restart() public {
+    function restartContract() public {
         require(msg.sender == votingOrganizer, "Only the organizer can restart the contract");
+        require(block.timestamp > endTime, "The previous voting is not over yet");
         // Reset the voter and candidate ID counters.
         _voterID.reset();
         _candidateID.reset();
