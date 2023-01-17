@@ -72,6 +72,9 @@ contract Voting {
     constructor() {
         votingOrganizer = msg.sender;
     }
+    
+    uint256 public startTime;
+    uint256 public endTime;
 
     // Function to change the votingOrganizer.
     function setNewOrganizer(address _newOrganizer) public {
